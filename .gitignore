@@ -1,0 +1,14 @@
+# Build output
+out/
+out_krn/
+*.log
+KernelBuild.log
+Build_log.txt
+
+# Bundled toolchains are intentionally not versioned
+/prebuilts/
+
+# Editor junk
+*.swp
+*~
+.DS_Store

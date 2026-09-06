@@ -1,0 +1,39 @@
+/* Fourier FS1589 PA stereo */
+&i2c6 {
+        spk_amp1: fs15xx@34 {
+                compatible = "foursemi,fs1589";
+                reg = <0x34>;
+                spkr-id = <1>;
+                soft-reset = <0x100002>;
+                fwm-name = "frsm-spk1.bin";
+                status = "okay";
+        };
+
+        spk_amp2: fs15xx@35 {
+                compatible = "foursemi,fs1589";
+                reg = <0x35>;
+                spkr-id = <2>;
+                soft-reset = <0x100002>;
+                fwm-name = "frsm-spk2.bin";
+                status = "okay";
+        };
+
+        spk_amp3: fs15xx@36 {
+                compatible = "foursemi,fs1589";
+                reg = <0x36>;
+                spkr-id = <3>;
+                soft-reset = <0x100002>;
+                fwm-name = "frsm-spk3.bin";
+                status = "okay";
+        };
+
+        spk_amp4: fs15xx@37 {
+                compatible = "foursemi,fs1589";
+                reg = <0x37>;
+                spkr-id = <4>;
+                soft-reset = <0x100002>;
+                fwm-name = "frsm-spk4.bin";
+                status = "okay";
+        };
+/* Fourier FS1589 PA stereo End */
+};

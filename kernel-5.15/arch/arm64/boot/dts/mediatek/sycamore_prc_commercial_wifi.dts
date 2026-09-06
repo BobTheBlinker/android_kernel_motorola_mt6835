@@ -1,0 +1,385 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright (C) 2022 MediaTek Inc.
+ */
+/dts-v1/;
+/plugin/;
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/phy/phy.h>
+#include <dt-bindings/pinctrl/mt6835-pinfunc.h>
+#include "mediatek/mt6835_6377.dtsi"
+#include "mediatek/cust_mt6835_camera.dtsi"
+#include "mediatek/sycamore_keyboard.dtsi"
+
+&android {
+	hardware = "mt8755";
+};
+
+&mtk_leds {
+	compatible = "mediatek,pwm-leds";
+
+	backlight {
+		led_mode = <5>;
+                /*sycamore code for sycamore-4386 by liyc40 at  2024.11.26 start*/
+		pwms = <&disp_pwm 0 31505>;
+		pwm_config = <2 0 0 0 0>;
+                max-hw-brightness=<4095>;
+                min-hw-brightness=<0>;
+                /*sycamore code for sycamore-4784 by liyc40 at  2025.1.7 start*/
+                max-brightness=<255>;
+                /*sycamore code for sycamore-4784 by liyc40 at  2025.1.7 end*/
+                min-brightness=<0>;
+                /*sycamore code for sycamore-4386 by liyc40 at  2024.11.26 end*/
+	};
+};
+/* Sycamore code for SYCAMORE-510 by liaodc3 at 2025/01/23 start */
+&product_region {
+        country = "ROW";
+        province = "ROW";
+        city = "ROW";
+};
+/* Sycamore code for SYCAMORE-510 by liaodc3 at 2025/01/23 end */
+&pio {
+	mtkfb_pins_lcm_rst_out1_gpio: lcm_rst_out1_gpio {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO86__FUNC_GPIO86>;
+			slew-rate = <1>;
+			output-high;
+		};
+	};
+
+	mtkfb_pins_lcm_rst_out0_gpio: lcm_rst_out0_gpio {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO86__FUNC_GPIO86>;
+			slew-rate = <1>;
+			output-low;
+		};
+	};
+
+	mtkfb_pins_lcm_dsi_te: lcm_dsi_te {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO85__FUNC_DSI_TE>;
+		};
+	};
+
+};
+
+&mtkfb {
+	pinctrl-names = "lcm_rst_out1_gpio", "lcm_rst_out0_gpio",
+		"mode_te_te";
+	pinctrl-0 = <&mtkfb_pins_lcm_rst_out1_gpio>;
+	pinctrl-1 = <&mtkfb_pins_lcm_rst_out0_gpio>;
+	pinctrl-2 = <&mtkfb_pins_lcm_dsi_te>;
+	status = "okay";
+};
+
+&dispsys_config {
+	pinctrl-names =
+		"lcm_rst_out1_gpio", "lcm_rst_out0_gpio",
+		"mode_te_te";
+	pinctrl-0 = <&mtkfb_pins_lcm_rst_out1_gpio>;
+	pinctrl-1 = <&mtkfb_pins_lcm_rst_out0_gpio>;
+	pinctrl-2 = <&mtkfb_pins_lcm_dsi_te>;
+	status = "okay";
+};
+
+&dsi0 {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+	switch-fps = <0>;
+	switch-mode = "vfp";
+	panel1@0 {
+		/* sycamore code for sycamore-4725 by chenzm13 at  2024.12.13 start */
+		compatible = "panel,sycamore";
+		/* sycamore code for sycamore-4725 by chenzm13 at  2024.12.13 end */
+		reg = <0>;
+		/*sycamore code for sycamore-18633 by liyc40 at  2024.12.23 start*/
+		prc_panel = <1>;
+		/*sycamore code for sycamore-18633 by liyc40 at  2024.12.23 end*/
+		pm-enable-gpios = <&pio 87 0>;
+		reset-gpios = <&pio 86 0>;
+		bias-gpios = <&pio 150 0>,
+			<&pio 151 0>;
+		pinctrl-names = "default";
+		port {
+			panel_in1: endpoint {
+				remote-endpoint = <&dsi_out>;
+			};
+		};
+	};
+	ports {
+		port {
+			dsi_out: endpoint {
+				remote-endpoint = <&panel_in1>;
+			};
+		};
+	};
+};
+
+&i2c3 {
+	lcm_bias: lcm_bias@3e {
+		compatible = "mediatek,I2C_LCD_BIAS";
+		reg = <0x3e>;
+		status = "okay";
+	};
+};
+
+/* usb typec mux start */
+&pio {
+	sel_up: sel_high {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO54__FUNC_GPIO54>;
+			output-high;
+		};
+	};
+
+	sel_down: sel_low  {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO54__FUNC_GPIO54>;
+			output-low;
+		};
+	};
+
+	sw_enable: sw_enable {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO30__FUNC_GPIO30>;
+			output-high;
+		};
+	};
+
+	sw_disable: sw_disable {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO30__FUNC_GPIO30>;
+			output-high;
+		};
+	};
+
+	ps_enable: ps_enable {
+		pins_cmd_dat {
+		};
+	};
+
+	ps_disable: ps_disable {
+		pins_cmd_dat {
+		};
+	};
+};
+
+&ps5169 {
+	pinctrl-names = "enable", "disable";
+	pinctrl-0 = <&ps_enable>;
+	pinctrl-1 = <&ps_disable>;
+	status = "okay";
+};
+
+&fusb304 {
+	pinctrl-names = "sel_up", "sel_down",
+		"enable", "disable";
+	pinctrl-0 = <&sel_up>;
+	pinctrl-1 = <&sel_down>;
+	pinctrl-2 = <&sw_enable>;
+	pinctrl-3 = <&sw_disable>;
+	status = "okay";
+};
+
+&mt6375_typec {
+	port {
+		tcpc_typec_usb: endpoint@0 {
+			remote-endpoint = <&ssusb_mux>;
+		};
+	};
+};
+
+&typec_mux_switch {
+	orientation-switch;
+	mode-switch;
+	accessory;
+	port {
+		ssusb_mux: endpoint@0 {
+			remote-endpoint = <&tcpc_typec_usb>;
+		};
+	};
+};
+/* usb typec mux end*/
+
+/* GPS GPIO standardization start */
+&pio {
+	gps_pins_default: gps_default {
+	};
+	gps_l1_lna_pins_ol: gps_l1_lna@0 {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO123__FUNC_GPIO123>;
+			output-low;
+		};
+	};
+	gps_l1_lna_pins_dsp_ctrl: gps_l1_lna@1 {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO123__FUNC_GPS_L1_ELNA_EN>;
+		};
+	};
+	gps_l1_lna_pins_oh: gps_l1_lna@2 {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO123__FUNC_GPIO123>;
+			output-high;
+		};
+	};
+	gps_l5_lna_pins_ol: gps_l5_lna@0 {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO124__FUNC_GPIO124>;
+			output-low;
+		};
+	};
+	gps_l5_lna_pins_dsp_ctrl: gps_l5_lna@1 {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO124__FUNC_GPS_L5_ELNA_EN>;
+		};
+	};
+	gps_l5_lna_pins_oh: gps_l5_lna@2 {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO124__FUNC_GPIO124>;
+			output-high;
+		};
+	};
+};
+
+&gps {
+	pinctrl-names = "default",
+		"gps_l1_lna_disable",
+		"gps_l1_lna_dsp_ctrl",
+		"gps_l1_lna_enable",
+		"gps_l5_lna_disable",
+		"gps_l5_lna_dsp_ctrl",
+		"gps_l5_lna_enable";
+	pinctrl-0 = <&gps_pins_default>;
+	pinctrl-1 = <&gps_l1_lna_pins_ol>;
+	pinctrl-2 = <&gps_l1_lna_pins_dsp_ctrl>;
+	pinctrl-3 = <&gps_l1_lna_pins_oh>;
+	pinctrl-4 = <&gps_l5_lna_pins_ol>;
+	pinctrl-5 = <&gps_l5_lna_pins_dsp_ctrl>;
+	pinctrl-6 = <&gps_l5_lna_pins_oh>;
+	status = "okay";
+};
+/* GPS GPIO standardization end */
+
+#include "mediatek/cust_mt6835_camera_6377_v4l2.dtsi"
+#include "mediatek/cust_mt6835_touch_1600x2560.dtsi"
+
+&pdc {
+	pd_vbus_upper_bound = <12000000>;
+};
+
+/* Sycamore code for SYCAMORE-283 by lixd36 at 2024/11/22 start */
+/* Microtrust(TEEI) utos real driver */
+&utos {
+	microtrust,real-drv = <1>;
+};
+/* Sycamore code for SYCAMORE-283 by lixd36 at 2024/11/22 end */
+
+&i2c6 {
+	spk: speaker_amp@5c {
+		compatible = "richtek,rt5512";
+		#sound-dai-cells = <0>;
+		reg = <0x5c>;
+		status = "okay";
+		sound-name-prefix = "Left";
+	};
+};
+
+&sound {
+	mediatek,spk-i2s = <3 0>;
+	mediatek,speaker-codec {
+		sound-dai = <&spk>;
+	};
+};
+
+&mddriver {
+	ref-args = "md_disable";
+};
+
+&scp {
+	reg =	<0 0x1c400000 0 0x100000>, /* tcm */
+			<0 0x1c724000 0 0x1000>, /* cfg */
+			<0 0x1c721000 0 0x1000>, /* clk*/
+			<0 0x1c730000 0 0x1000>, /* cfg core0 */
+			<0 0x1c740000 0 0x1000>, /* cfg core1 */
+			<0 0x1c752000 0 0x1000>, /* bus tracker */
+			<0 0x1c760000 0 0x40000>, /* llc */
+			<0 0x1c7a5000 0 0x4>, /* cfg_sec */
+			<0 0x1c7fb000 0 0x100>, /* mbox0 base */
+			<0 0x1c7fb100 0 0x4>, /* mbox0 set */
+			<0 0x1c7fb10c 0 0x4>, /* mbox0 clr */
+			<0 0x1c7a5020 0 0x4>, /* mbox0 init */
+			<0 0x1c7fc000 0 0x100>, /* mbox1 base */
+			<0 0x1c7fc100 0 0x4>, /* mbox1 set */
+			<0 0x1c7fc10c 0 0x4>, /* mbox1 clr */
+			<0 0x1c7a5024 0 0x4>, /* mbox1 init */
+			<0 0x1c7fd000 0 0x100>, /* mbox2 base */
+			<0 0x1c7fd100 0 0x4>, /* mbox2 set */
+			<0 0x1c7fd10c 0 0x4>, /* mbox2 clr */
+			<0 0x1c7a5028 0 0x4>, /* mbox2 init */
+			<0 0x1c7fe000 0 0x100>, /* mbox3 base */
+			<0 0x1c7fe100 0 0x4>, /* mbox3 set */
+			<0 0x1c7fe10c 0 0x4>, /* mbox3 clr */
+			<0 0x1c7a502c 0 0x4>, /* mbox3 init */
+			<0 0x1c7ff000 0 0x100>, /* mbox4 base */
+			<0 0x1c7ff100 0 0x4>, /* mbox4 set */
+			<0 0x1c7ff10c 0 0x4>, /* mbox4 clr */
+			<0 0x1c7a5030 0 0x4>; /* mbox4 init */
+	scp-sramsize = <0x100000>;
+	secure-dump-size = <0x500000>;
+	memorydump = <0x100000>, /* l2tcm */
+				     <0x03c000>, /* l1c */
+				     <0x003c00>, /* regdump */
+				     <0x000400>, /* trace buffer */
+				     <0x300000>; /* dram */
+};
+
+/* sycamore code for SYCAMORE-4730 by kexinzhang2 at 2024.12.13 start */
+&mt6377_vbuck5 {
+	regulator-min-microvolt = <0>;
+	regulator-max-microvolt = <0>;
+	/delete-property/ regulator-always-on;
+};
+
+&mt6377_vsram_md {
+	regulator-min-microvolt = <0>;
+	regulator-max-microvolt = <0>;
+	/delete-property/ regulator-always-on;
+};
+
+&mt6319_3_vbuck1 {
+	/delete-property/ regulator-always-on;
+};
+
+&mt6319_3_vbuck4 {
+	/delete-property/ regulator-always-on;
+};
+/* sycamore code for SYCAMORE-4730 by kexinzhang2 at 2024.12.13 end */
+
+&mt6377_vrfio18 {
+	/delete-property/ regulator-always-on;
+};
+
+&mt6377_vrfva12 {
+	/delete-property/ regulator-always-on;
+};
+
+/* Sycamore code for SYCAMORE-283 by lixd36 at 2024/11/22 start */
+&mtee_svp {
+	mtee:MTEE {
+		compatible = "mediatek,mtk_svp_on_mtee_support";
+	};
+
+	svp:SecureVideoPath {
+		compatible = "mediatek,mtk_sec_video_path_support";
+	};
+};
+/* Sycamore code for SYCAMORE-283 by lixd36 at 2024/11/22 end */
+
+#include <sycamore_prc_commercial_wifi/cust.dtsi>
+#include "mediatek/battery_charger.dtsi"
+#include "mediatek/aw87xxx.dtsi"
+#include "mediatek/fs1589.dtsi"
+/*End of this file, DO NOT ADD ANYTHING HERE*/

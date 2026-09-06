@@ -1,0 +1,78 @@
+&lenovo_kb {
+		compatible = "lenovo,lenovo_keyboard";
+		uart-tx-gpios = <&pio 52 0x0>;
+		uart-rx-gpios = <&pio 53 0x0>;
+		power-en-gpios = <&pio 38 0x0>;
+		plug-gpios = <&pio 7 0x0>; //hall
+		uart-wake-gpios = <&pio 92 0x0>;
+		tx-en-gpios = <&pio 124 0x0>;
+		//pupd-gpios = <&pio  0>;
+		//lid-gpios = <&pio  0>;
+		pinctrl-names = "uart_tx_set","uart_tx_clear","uart_rx_set","uart_rx_clear","uart_rx_gpio","uart_wake_gpio","uart_wake_clear";
+		pinctrl-0 = <&uart_tx_set>;
+		pinctrl-1 = <&uart_tx_clear>;
+		pinctrl-2 = <&uart_rx_set>;
+		pinctrl-3 = <&uart_rx_clear>;
+		pinctrl-4 = <&uart_rx_gpio>;
+		pinctrl-5 = <&uart_wake_gpio>;
+		pinctrl-6 = <&uart_wake_clear>;
+		status = "ok";
+		//panel = <&dsi_panel_spinel_boe_nt36532_dsc_3k_video &dsi_panel_spinel_tianma_nt36532_dsc_3k_video>;
+};
+
+&pio {
+	uart_tx_set: uart_tx_set {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO52__FUNC_UTXD1>;
+			slew-rate = <1>;
+		};
+	};
+
+	uart_tx_clear: uart_tx_clear {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO52__FUNC_GPIO52>;
+			input-enable;
+			slew-rate = <0>;
+			bias-disable;
+		};
+	};
+
+	uart_rx_set: uart_rx_set {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO53__FUNC_URXD1>;
+			slew-rate = <1>;
+		};
+	};
+
+	uart_rx_clear: uart_rx_clear {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO53__FUNC_GPIO53>;
+			input-enable;
+			slew-rate = <0>;
+			bias-disable;
+		};
+	};
+	uart_rx_gpio: uart_rx_gpio {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO53__FUNC_GPIO53>;
+			slew-rate = <0>;
+			bias-pull-up;
+		};
+	};
+	uart_wake_gpio: uart_wake_gpio {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO92__FUNC_GPIO92>;
+			slew-rate = <0>;
+			bias-pull-up;
+		};
+	};
+	uart_wake_clear: uart_wake_clear {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO92__FUNC_GPIO92>;
+			input-enable;
+			slew-rate = <0>;
+			bias-disable;
+		};
+	};
+};
+
